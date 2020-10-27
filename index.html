@@ -1,0 +1,15 @@
+<h1>{{.PageTitle}}</h1>
+<table>
+    <tr>
+        <th>Team Name</th>
+        <th>GW Total</th>
+        <th>Total</th>
+    </tr>
+    {{range .Rows}}
+    <tr>
+        <td>{{.TeamName}}</td>
+        <td>{{.GWTotal}}</td>
+        <td>{{.Total}}</td>
+    </tr>
+    {{end}}
+</table>

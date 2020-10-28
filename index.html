@@ -4,12 +4,20 @@
         <th>Team Name</th>
         <th>GW Total</th>
         <th>Total</th>
+        <th>Last Rank</th>
+        <th>Rank</th>
+        <th>Rank Sort</th>
+
+
     </tr>
     {{range .Rows}}
     <tr>
         <td>{{.TeamName}}</td>
         <td>{{.GWTotal}}</td>
         <td>{{.Total}}</td>
+        <td>{{.LastRank}}</td>
+        <td>{{.Rank}}</td>
+        <td>{{.RankSort}}</td>
     </tr>
     {{end}}
 </table>

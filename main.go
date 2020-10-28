@@ -7,7 +7,11 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strconv"
+	"sync"
 	"time"
+
+	"github.com/gorilla/mux"
 )
 
 type fpl struct {
@@ -334,6 +338,9 @@ type row struct {
 	TeamName string
 	GWTotal  int
 	Total    int
+	LastRank int
+	Rank     int
+	RankSort int
 }
 
 const fplURL string = "https://fantasy.premierleague.com/api/bootstrap-static/"
@@ -341,6 +348,8 @@ const fplURL string = "https://fantasy.premierleague.com/api/bootstrap-static/"
 var fplData fpl
 
 var rows []row
+
+var wg sync.WaitGroup
 
 func main() {
 	client := &http.Client{}
@@ -378,17 +387,32 @@ func main() {
 	// }
 	// getPicks(575369, 6)
 	// getPlayerName(390)
-	getLeague(113899)
+
+	r := mux.NewRouter()
+
+	// var wg sync.WaitGroup
 
 	tmpl := template.Must(template.ParseFiles("index.html"))
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+	r.HandleFunc("/league/{league}", func(w http.ResponseWriter, r *http.Request) {
+		// wg.Add(1)
+		vars := mux.Vars(r)
+		i, _ := strconv.Atoi(vars["league"])
+		rows = nil
+		getLeague(i)
+		// go func() {
+		// 	getLeague(i)
+		// 	wg.Done()
+		// }()
+
+		// wg.Wait()
+
 		data := OutputPageData{
 			PageTitle: "FPL",
 			Rows:      rows,
 		}
 		tmpl.Execute(w, data)
 	})
-	http.ListenAndServe(":80", nil)
+	http.ListenAndServe(":80", r)
 }
 
 func getPicks(id, week int) {
@@ -426,9 +450,11 @@ func getPicks(id, week int) {
 
 	for _, element := range responseObject.Picks {
 		// fmt.Println(index, element)
+		// testing speed without below
 		fmt.Println(getPlayerName(element.Element))
 		getPlayer(element.Element)
 	}
+	wg.Done()
 }
 
 func getPlayer(id int) {
@@ -464,10 +490,10 @@ func getPlayer(id int) {
 
 	// fmt.Println(responseObject.History)
 
-	for index, element := range responseObject.History {
-		fmt.Print("GW: ", index+1, " Pts: ", element.TotalPoints, " - ")
-	}
-	fmt.Println(" ")
+	// for index, element := range responseObject.History {
+	// 	fmt.Print("GW: ", index+1, " Pts: ", element.TotalPoints, " - ")
+	// }
+	// fmt.Println(" ")
 }
 
 func getPlayerName(id int) string {
@@ -507,17 +533,21 @@ func getLeague(id int) []row {
 
 	json.Unmarshal(body, &responseObject)
 
+	wg.Add(len(responseObject.Standings.Results))
 	for _, element := range responseObject.Standings.Results {
 		fmt.Println(element.EntryName)
 		fmt.Println("Team ID: ", element.Entry)
 		fmt.Println("Event Total: ", element.EventTotal)
 		fmt.Println("Total: ", element.Total)
-		getPicks(element.Entry, 6)
+		go func() {
+			getPicks(element.Entry, 6)
+		}()
 		fmt.Println("---------")
 		fmt.Println("---------")
-		result := row{element.EntryName, element.EventTotal, element.Total}
+		result := row{element.EntryName, element.EventTotal, element.Total, element.LastRank, element.Rank, element.RankSort}
 		rows = append(rows, result)
 	}
+	wg.Wait()
 	fmt.Println(rows)
 	return rows
 }

@@ -388,13 +388,13 @@ type entry struct {
 }
 
 type row struct {
+	Rank      int
 	TeamName  string
 	GWTotal   int
-	Total     int
 	LiveTotal int
+	PrevTotal int
 	LastRank  int
-	Rank      int
-	RankSort  int
+	BenchPts  int
 }
 
 const fplURL string = "https://fantasy.premierleague.com/api/bootstrap-static/"
@@ -591,6 +591,68 @@ func getLiveTotal(id int) int {
 	return (responseObject.SummaryOverallPoints)
 }
 
+func getBenchPts(id, week int) int {
+	client := &http.Client{}
+
+	apiURL := fmt.Sprintf("https://fantasy.premierleague.com/api/entry/%v/event/%v/picks/", id, week)
+
+	req, err := http.NewRequest("GET", apiURL, nil)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	req.Header.Set("User-Agent", "PostmanRuntime/7.18.0")
+
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	var responseObject picks
+
+	json.Unmarshal(body, &responseObject)
+
+	return (responseObject.EntryHistory.PointsOnBench)
+
+}
+
+func getPrevTotal(id, week int) int {
+	client := &http.Client{}
+
+	apiURL := fmt.Sprintf("https://fantasy.premierleague.com/api/entry/%v/event/%v/picks/", id, week)
+
+	req, err := http.NewRequest("GET", apiURL, nil)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	req.Header.Set("User-Agent", "PostmanRuntime/7.18.0")
+
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	var responseObject picks
+
+	json.Unmarshal(body, &responseObject)
+
+	return (responseObject.EntryHistory.TotalPoints)
+
+}
+
 func getLeague(id int) []row {
 	client := &http.Client{}
 
@@ -629,7 +691,9 @@ func getLeague(id int) []row {
 		fmt.Println("---------")
 		fmt.Println("---------")
 		liveTotal := getLiveTotal(element.Entry)
-		result := row{element.EntryName, element.EventTotal, element.Total, liveTotal, element.LastRank, element.Rank, element.RankSort}
+		benchPts := getBenchPts(element.Entry, 7)
+		prevTotal := getPrevTotal(element.Entry, 6)
+		result := row{element.Rank, element.EntryName, element.EventTotal, liveTotal, prevTotal, element.LastRank, benchPts}
 		rows = append(rows, result)
 	}
 	wg.Wait()

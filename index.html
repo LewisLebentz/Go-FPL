@@ -14,7 +14,7 @@
         <table data-toggle="table" data-sort-name="livetotal" data-sort-order="desc" class="table">
             <thead>
             <tr>
-                <th>Rank</th>
+                <th>#</th>
                 <th>Team Name</th>
                 <th>GW Total</th>
                 <th data-field="livetotal">Live Total</th>
@@ -28,7 +28,14 @@
             <tbody>
             {{range .Rows}}
             <tr>
-                <td>{{.Rank}}</td>
+            {{if (gt .Rank .LastRank)}}
+                <td class="table-danger">
+            {{else if (lt .Rank .LastRank)}}
+                <td class="table-success"> 
+            {{else}}
+                <td>
+            {{end}}
+                {{.Rank}}</td>
                 <td>{{.TeamName}}</td>
                 <td>{{.GWTotal}}</td>
                 <td>{{.LiveTotal}}</td>

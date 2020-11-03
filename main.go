@@ -334,13 +334,67 @@ type OutputPageData struct {
 	Rows      []row
 }
 
+type entry struct {
+	ID                       int       `json:"id"`
+	JoinedTime               time.Time `json:"joined_time"`
+	StartedEvent             int       `json:"started_event"`
+	FavouriteTeam            int       `json:"favourite_team"`
+	PlayerFirstName          string    `json:"player_first_name"`
+	PlayerLastName           string    `json:"player_last_name"`
+	PlayerRegionID           int       `json:"player_region_id"`
+	PlayerRegionName         string    `json:"player_region_name"`
+	PlayerRegionIsoCodeShort string    `json:"player_region_iso_code_short"`
+	PlayerRegionIsoCodeLong  string    `json:"player_region_iso_code_long"`
+	SummaryOverallPoints     int       `json:"summary_overall_points"`
+	SummaryOverallRank       int       `json:"summary_overall_rank"`
+	SummaryEventPoints       int       `json:"summary_event_points"`
+	SummaryEventRank         int       `json:"summary_event_rank"`
+	CurrentEvent             int       `json:"current_event"`
+	Leagues                  struct {
+		Classic []struct {
+			ID             int         `json:"id"`
+			Name           string      `json:"name"`
+			ShortName      string      `json:"short_name"`
+			Created        time.Time   `json:"created"`
+			Closed         bool        `json:"closed"`
+			Rank           interface{} `json:"rank"`
+			MaxEntries     interface{} `json:"max_entries"`
+			LeagueType     string      `json:"league_type"`
+			Scoring        string      `json:"scoring"`
+			AdminEntry     interface{} `json:"admin_entry"`
+			StartEvent     int         `json:"start_event"`
+			EntryRank      int         `json:"entry_rank"`
+			EntryLastRank  int         `json:"entry_last_rank"`
+			EntryCanLeave  bool        `json:"entry_can_leave"`
+			EntryCanAdmin  bool        `json:"entry_can_admin"`
+			EntryCanInvite bool        `json:"entry_can_invite"`
+		} `json:"classic"`
+		H2H []interface{} `json:"h2h"`
+		Cup struct {
+			Matches []interface{} `json:"matches"`
+			Status  struct {
+				QualificationEvent   int         `json:"qualification_event"`
+				QualificationNumbers int         `json:"qualification_numbers"`
+				QualificationRank    interface{} `json:"qualification_rank"`
+				QualificationState   string      `json:"qualification_state"`
+			} `json:"status"`
+		} `json:"cup"`
+	} `json:"leagues"`
+	Name                       string `json:"name"`
+	Kit                        string `json:"kit"`
+	LastDeadlineBank           int    `json:"last_deadline_bank"`
+	LastDeadlineValue          int    `json:"last_deadline_value"`
+	LastDeadlineTotalTransfers int    `json:"last_deadline_total_transfers"`
+}
+
 type row struct {
-	TeamName string
-	GWTotal  int
-	Total    int
-	LastRank int
-	Rank     int
-	RankSort int
+	TeamName  string
+	GWTotal   int
+	Total     int
+	LiveTotal int
+	LastRank  int
+	Rank      int
+	RankSort  int
 }
 
 const fplURL string = "https://fantasy.premierleague.com/api/bootstrap-static/"
@@ -507,6 +561,36 @@ func getPlayerName(id int) string {
 	return ("")
 }
 
+func getLiveTotal(id int) int {
+	client := &http.Client{}
+
+	apiURL := fmt.Sprintf("https://fantasy.premierleague.com/api/entry/%v/", id)
+
+	req, err := http.NewRequest("GET", apiURL, nil)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	req.Header.Set("User-Agent", "PostmanRuntime/7.18.0")
+
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	var responseObject entry
+
+	json.Unmarshal(body, &responseObject)
+
+	return (responseObject.SummaryOverallPoints)
+}
+
 func getLeague(id int) []row {
 	client := &http.Client{}
 
@@ -540,11 +624,12 @@ func getLeague(id int) []row {
 		fmt.Println("Event Total: ", element.EventTotal)
 		fmt.Println("Total: ", element.Total)
 		go func() {
-			getPicks(element.Entry, 6)
+			getPicks(element.Entry, 7)
 		}()
 		fmt.Println("---------")
 		fmt.Println("---------")
-		result := row{element.EntryName, element.EventTotal, element.Total, element.LastRank, element.Rank, element.RankSort}
+		liveTotal := getLiveTotal(element.Entry)
+		result := row{element.EntryName, element.EventTotal, element.Total, liveTotal, element.LastRank, element.Rank, element.RankSort}
 		rows = append(rows, result)
 	}
 	wg.Wait()

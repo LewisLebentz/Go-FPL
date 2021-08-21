@@ -395,6 +395,7 @@ type row struct {
 	PrevTotal int
 	LastRank  int
 	BenchPts  int
+	Captain   string
 }
 
 const fplURL string = "https://fantasy.premierleague.com/api/bootstrap-static/"
@@ -404,6 +405,8 @@ var fplData fpl
 var rows []row
 
 var wg sync.WaitGroup
+
+var currentGw int
 
 func main() {
 	client := &http.Client{}
@@ -426,21 +429,16 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	// log.Println(string(body))
+	log.Println(string(body))
 
 	json.Unmarshal(body, &fplData)
 
-	// fmt.Println(responseObject.Teams[0].Name)
+	for _, element := range fplData.Events {
+		if element.IsCurrent == true {
+			currentGw = element.ID
+		}
+	}
 
-	// for index, element := range fplData.Teams {
-	// 	fmt.Println(index, element.ShortName, element.Name)
-	// }
-
-	// for _, element := range fplData.Elements {
-	// 	fmt.Println(element.ID, element.SecondName, element.PointsPerGame, element.Team)
-	// }
-	// getPicks(575369, 6)
-	// getPlayerName(390)
 
 	r := mux.NewRouter()
 
@@ -506,7 +504,8 @@ func getPicks(id, week int) {
 		// fmt.Println(index, element)
 		// testing speed without below
 		fmt.Println(getPlayerName(element.Element))
-		getPlayer(element.Element)
+		fmt.Println(element.IsCaptain)
+		// getPlayer(element.Element)
 	}
 	wg.Done()
 }
@@ -686,14 +685,15 @@ func getLeague(id int) []row {
 		fmt.Println("Event Total: ", element.EventTotal)
 		fmt.Println("Total: ", element.Total)
 		go func() {
-			getPicks(element.Entry, 7)
+			getPicks(element.Entry, currentGw)
 		}()
 		fmt.Println("---------")
 		fmt.Println("---------")
-		liveTotal := getLiveTotal(element.Entry)
-		benchPts := getBenchPts(element.Entry, 7)
-		prevTotal := getPrevTotal(element.Entry, 6)
-		result := row{element.Rank, element.EntryName, element.EventTotal, liveTotal, prevTotal, element.LastRank, benchPts}
+		benchPts := getBenchPts(element.Entry, currentGw)
+		prevTotal := getPrevTotal(element.Entry, currentGw - 1)
+		liveTotal := element.EventTotal + prevTotal
+		captain := "test"
+		result := row{element.RankSort, element.EntryName, element.EventTotal, liveTotal, prevTotal, element.LastRank, benchPts, captain}
 		rows = append(rows, result)
 	}
 	wg.Wait()

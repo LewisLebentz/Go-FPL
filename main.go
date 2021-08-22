@@ -464,7 +464,7 @@ func main() {
 		}
 		tmpl.Execute(w, data)
 	})
-	http.ListenAndServeTLS(":443", "localhost.crt", "localhost.key", r)
+	http.ListenAndServe(":80", r)
 }
 
 func getPicks(id, week int) {
@@ -508,6 +508,40 @@ func getPicks(id, week int) {
 		// getPlayer(element.Element)
 	}
 	wg.Done()
+}
+
+func getCaptain(id, week int) string {
+	client := &http.Client{}
+
+	apiURL := fmt.Sprintf("https://fantasy.premierleague.com/api/entry/%v/event/%v/picks/", id, week)
+
+	req, err := http.NewRequest("GET", apiURL, nil)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	req.Header.Set("User-Agent", "PostmanRuntime/7.18.0")
+
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	var responseObject picks
+
+	json.Unmarshal(body, &responseObject)
+
+	for _, element := range responseObject.Picks {
+		if element.IsCaptain {
+			return getPlayerName(element.Element)
+		}
+	}
 }
 
 func getPlayer(id int) {
@@ -684,15 +718,15 @@ func getLeague(id int) []row {
 		fmt.Println("Team ID: ", element.Entry)
 		fmt.Println("Event Total: ", element.EventTotal)
 		fmt.Println("Total: ", element.Total)
-		//go func() {
-		//	getPicks(element.Entry, currentGw)
-		//}()
+		// go func() {
+		// 	getPicks(element.Entry, currentGw)
+		// }()
 		fmt.Println("---------")
 		fmt.Println("---------")
 		benchPts := getBenchPts(element.Entry, currentGw)
 		prevTotal := getPrevTotal(element.Entry, currentGw - 1)
 		liveTotal := element.EventTotal + prevTotal
-		captain := "test"
+		captain := getCaptain(element.Entry, currentGw)
 		result := row{element.RankSort, element.EntryName, element.EventTotal, liveTotal, prevTotal, element.LastRank, benchPts, captain}
 		rows = append(rows, result)
 	}

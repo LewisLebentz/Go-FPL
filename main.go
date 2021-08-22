@@ -498,7 +498,7 @@ func main() {
 		}
 		tmpl.Execute(w, data)
 	})
-	http.ListenAndServe(":80", r)
+	http.ListenAndServeTLS(":443", "localhost.crt", "localhost.key", r)
 }
 
 func getPicks(id, week int) ([]int, int) {

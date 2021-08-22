@@ -429,7 +429,7 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	log.Println(string(body))
+	// log.Println(string(body))
 
 	json.Unmarshal(body, &fplData)
 
@@ -464,7 +464,7 @@ func main() {
 		}
 		tmpl.Execute(w, data)
 	})
-	http.ListenAndServe(":80", r)
+	http.ListenAndServeTLS(":443", "localhost.crt", "localhost.key", r)
 }
 
 func getPicks(id, week int) {
@@ -684,9 +684,9 @@ func getLeague(id int) []row {
 		fmt.Println("Team ID: ", element.Entry)
 		fmt.Println("Event Total: ", element.EventTotal)
 		fmt.Println("Total: ", element.Total)
-		go func() {
-			getPicks(element.Entry, currentGw)
-		}()
+		//go func() {
+		//	getPicks(element.Entry, currentGw)
+		//}()
 		fmt.Println("---------")
 		fmt.Println("---------")
 		benchPts := getBenchPts(element.Entry, currentGw)

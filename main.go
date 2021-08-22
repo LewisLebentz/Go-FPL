@@ -542,6 +542,7 @@ func getCaptain(id, week int) string {
 			return getPlayerName(element.Element)
 		}
 	}
+	return "N/A"
 }
 
 func getPlayer(id int) {

@@ -713,7 +713,7 @@ func getLeague(id int) []row {
 
 	json.Unmarshal(body, &responseObject)
 
-	wg.Add(len(responseObject.Standings.Results))
+	// wg.Add(len(responseObject.Standings.Results))
 	for _, element := range responseObject.Standings.Results {
 		fmt.Println(element.EntryName)
 		fmt.Println("Team ID: ", element.Entry)
@@ -731,7 +731,7 @@ func getLeague(id int) []row {
 		result := row{element.RankSort, element.EntryName, element.EventTotal, liveTotal, prevTotal, element.LastRank, benchPts, captain}
 		rows = append(rows, result)
 	}
-	wg.Wait()
+	// wg.Wait()
 	fmt.Println(rows)
 	return rows
 }

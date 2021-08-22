@@ -404,7 +404,7 @@ var fplData fpl
 
 var rows []row
 
-var wg sync.WaitGroup
+// var wg sync.WaitGroup
 
 var currentGw int
 
@@ -507,7 +507,7 @@ func getPicks(id, week int) {
 		fmt.Println(element.IsCaptain)
 		// getPlayer(element.Element)
 	}
-	wg.Done()
+	// wg.Done()
 }
 
 func getCaptain(id, week int) string {

@@ -671,7 +671,7 @@ func getPlayerName(id int) string {
 		if element.ID == id {
 			// fmt.Println(element.ID, element.FirstName, element.SecondName, element.PointsPerGame, element.Team)
 			fullName := element.FirstName + " " + element.SecondName
-			return fullName
+			return element.SecondName
 		}
 	}
 	return ("")

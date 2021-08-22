@@ -397,6 +397,41 @@ type row struct {
 	Captain   string
 }
 
+type livePlayerData struct {
+	Elements []struct {
+		ID    int `json:"id"`
+		Stats struct {
+			Minutes         int    `json:"minutes"`
+			GoalsScored     int    `json:"goals_scored"`
+			Assists         int    `json:"assists"`
+			CleanSheets     int    `json:"clean_sheets"`
+			GoalsConceded   int    `json:"goals_conceded"`
+			OwnGoals        int    `json:"own_goals"`
+			PenaltiesSaved  int    `json:"penalties_saved"`
+			PenaltiesMissed int    `json:"penalties_missed"`
+			YellowCards     int    `json:"yellow_cards"`
+			RedCards        int    `json:"red_cards"`
+			Saves           int    `json:"saves"`
+			Bonus           int    `json:"bonus"`
+			Bps             int    `json:"bps"`
+			Influence       string `json:"influence"`
+			Creativity      string `json:"creativity"`
+			Threat          string `json:"threat"`
+			IctIndex        string `json:"ict_index"`
+			TotalPoints     int    `json:"total_points"`
+			InDreamteam     bool   `json:"in_dreamteam"`
+		} `json:"stats"`
+		Explain []struct {
+			Fixture int `json:"fixture"`
+			Stats   []struct {
+				Identifier string `json:"identifier"`
+				Points     int    `json:"points"`
+				Value      int    `json:"value"`
+			} `json:"stats"`
+		} `json:"explain"`
+	} `json:"elements"`
+}
+
 const fplURL string = "https://fantasy.premierleague.com/api/bootstrap-static/"
 
 var fplData fpl
@@ -466,7 +501,7 @@ func main() {
 	http.ListenAndServe(":80", r)
 }
 
-func getPicks(id, week int) {
+func getPicks(id, week int) ([]int, int) {
 	client := &http.Client{}
 
 	apiURL := fmt.Sprintf("https://fantasy.premierleague.com/api/entry/%v/event/%v/picks/", id, week)
@@ -489,24 +524,26 @@ func getPicks(id, week int) {
 		log.Fatalln(err)
 	}
 
-	// log.Println(string(body))
-
 	var responseObject picks
 
 	json.Unmarshal(body, &responseObject)
 
-	// fmt.Println(responseObject.Teams[0].Name)
-
-	// fmt.Println(responseObject.EntryHistory, responseObject)
+	var players []int
+	var captain int
 
 	for _, element := range responseObject.Picks {
-		// fmt.Println(index, element)
-		// testing speed without below
-		fmt.Println(getPlayerName(element.Element))
-		fmt.Println(element.IsCaptain)
+		if element.Position <= 11 {
+			if element.IsCaptain {
+				captain = element.Element
+				continue
+			}
+			players = append(players, element.Element)
+			}
+		// fmt.Println(getPlayerName(element.Element))
+		// fmt.Println(element.IsCaptain)
 		// getPlayer(element.Element)
 	}
-	// wg.Done()
+	return players, captain
 }
 
 func getCaptain(id, week int) string {
@@ -581,6 +618,52 @@ func getPlayer(id int) {
 	// 	fmt.Print("GW: ", index+1, " Pts: ", element.TotalPoints, " - ")
 	// }
 	// fmt.Println(" ")
+}
+
+func getLiveScore(ids []int, week int) int {
+	client := &http.Client{}
+
+	apiURL := fmt.Sprintf("https://fantasy.premierleague.com/api/event/%v/live/", currentGw)
+
+	req, err := http.NewRequest("GET", apiURL, nil)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	req.Header.Set("User-Agent", "PostmanRuntime/7.18.0")
+
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	var responseObject livePlayerData
+
+	json.Unmarshal(body, &responseObject)
+
+	var liveTotal int
+
+	for _, element := range responseObject.Elements {
+		if contains(ids, element.ID) {
+			liveTotal = liveTotal + element.Stats.TotalPoints
+		}
+	}
+	return liveTotal
+}
+
+func contains(s []int, num int) bool {
+	for _, v := range s {
+		if v == num {
+			return true
+		}
+	}
+	return false
 }
 
 func getPlayerName(id int) string {
@@ -725,9 +808,12 @@ func getLeague(id int) []row {
 		fmt.Println("---------")
 		benchPts := getBenchPts(element.Entry, currentGw)
 		prevTotal := getPrevTotal(element.Entry, currentGw - 1)
-		liveTotal := element.EventTotal + prevTotal
+		picks, captainPick := getPicks(element.Entry, currentGw)
+		// liveTotal := element.EventTotal + prevTotal
+		eventTotal := getLiveScore(picks, currentGw) + (getLiveScore([]int{captainPick}, currentGw) * 2)
+		liveTotal := eventTotal + prevTotal
 		captain := getCaptain(element.Entry, currentGw)
-		result := row{element.RankSort, element.EntryName, element.EventTotal, liveTotal, prevTotal, element.LastRank, benchPts, captain}
+		result := row{element.RankSort, element.EntryName, eventTotal, liveTotal, prevTotal, element.LastRank, benchPts, captain}
 		rows = append(rows, result)
 	}
 	// wg.Wait()

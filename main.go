@@ -472,7 +472,7 @@ const fplURL string = "https://fantasy.premierleague.com/api/bootstrap-static/"
 
 var fplData fpl
 
-var rows []row
+// var rows []row
 
 var threeBp []int
 var twoBp []int
@@ -522,9 +522,9 @@ func main() {
 		// wg.Add(1)
 		vars := mux.Vars(r)
 		i, _ := strconv.Atoi(vars["league"])
-		rows = nil
+		// rows = nil
 		getBonusPoints()
-		getLeague(i)
+		rows := getLeague(i)
 		// go func() {
 		// 	getLeague(i)
 		// 	wg.Done()
@@ -918,6 +918,7 @@ func getLeague(id int) []row {
 		log.Fatalln(err)
 	}
 	var responseObject league
+	var rows []row
 
 	json.Unmarshal(body, &responseObject)
 
@@ -943,6 +944,12 @@ func getLeague(id int) []row {
 		rows = append(rows, result)
 	}
 	// wg.Wait()
+	sort.Slice(rows, func(i, j int) bool {
+		return rows[i].LiveTotal > rows[j].LiveTotal
+	})
+	for i := range rows {
+		rows[i].Rank = i + 1
+	}
 	fmt.Println(rows)
 	return rows
 }

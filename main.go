@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"strconv"
 	"time"
+	"sort"
 
 	"github.com/gorilla/mux"
 )
@@ -462,6 +463,10 @@ type bonusPoints []struct {
 	PulseID         int `json:"pulse_id"`
 }
 
+type bonusPointsCalc struct {
+	ID    int
+	Score int
+}
 
 const fplURL string = "https://fantasy.premierleague.com/api/bootstrap-static/"
 
@@ -469,6 +474,9 @@ var fplData fpl
 
 var rows []row
 
+var threeBp []int
+var twoBp []int
+var oneBp []int
 // var wg sync.WaitGroup
 
 var currentGw int
@@ -515,8 +523,8 @@ func main() {
 		vars := mux.Vars(r)
 		i, _ := strconv.Atoi(vars["league"])
 		rows = nil
-		getLeague(i)
 		getBonusPoints()
+		getLeague(i)
 		// go func() {
 		// 	getLeague(i)
 		// 	wg.Done()
@@ -530,8 +538,8 @@ func main() {
 		}
 		tmpl.Execute(w, data)
 	})
-	// http.ListenAndServeTLS(":443", "localhost.crt", "localhost.key", r)
-	http.ListenAndServe(":80", r)
+	http.ListenAndServeTLS(":443", "localhost.crt", "localhost.key", r)
+	// http.ListenAndServe(":80", r)
 }
 
 func getPicks(id, week int) ([]int, int) {
@@ -684,7 +692,18 @@ func getLiveScore(ids []int, week int) int {
 
 	for _, element := range responseObject.Elements {
 		if contains(ids, element.ID) {
-			liveTotal = liveTotal + element.Stats.TotalPoints
+			liveTotal = liveTotal + element.Stats.TotalPoints - element.Stats.Bonus
+			if contains(threeBp, element.ID) {
+				liveTotal = liveTotal + 3
+				fmt.Println("ADDING THREE for: ", element.ID)
+				fmt.Println("Based off this chart: ", threeBp)
+			}
+			if contains(twoBp, element.ID) {
+				liveTotal = liveTotal + 2
+			}
+			if contains(oneBp, element.ID) {
+				liveTotal = liveTotal + 1
+			}
 		}
 	}
 	return liveTotal
@@ -742,15 +761,44 @@ func getBonusPoints() {
 	for _, element := range responseObject {
 		for _, match := range element.Stats {
 			if match.Identifier == "bps" {
+				var bps []bonusPointsCalc
 				// fmt.Println(match.H[0].Element)
-				h := map[int]int{match.H[0].Element: match.H[0].Value, match.H[1].Element: match.H[1].Value, match.H[2].Element: match.H[2].Value, match.A[0].Element: match.A[0].Value, match.A[1].Element: match.A[1].Value, match.A[2].Element: match.A[2].Value}
+				// h := map[int]int{match.H[0].Element: match.H[0].Value, match.H[1].Element: match.H[1].Value, match.H[2].Element: match.H[2].Value, match.A[0].Element: match.A[0].Value, match.A[1].Element: match.A[1].Value, match.A[2].Element: match.A[2].Value}
 				// a := map[int]int{match.A[0].Element: match.A[0].Value, match.A[1].Element: match.A[1].Value, match.A[2].Element: match.A[2].Value}
-				fmt.Println(h)
+				// fmt.Println(h)
+				for i := 0; i < 3; i++ {
+					playerH := bonusPointsCalc{match.H[i].Element, match.H[i].Value}
+					playerA := bonusPointsCalc{match.A[i].Element, match.A[i].Value}
+					bps = append(bps, playerH)
+					bps = append(bps, playerA)
+				}
+				sort.Slice(bps, func(i, j int) bool {
+					return bps[i].Score > bps[j].Score
+				})
+				bps = bps[:3]
+				if bps[0].Score == bps[1].Score {
+					threeBp = append(threeBp, bps[0].ID)
+					threeBp = append(threeBp, bps[1].ID)
+				} else {
+					threeBp = append(threeBp, bps[0].ID)
+					twoBp = append(twoBp, bps[1].ID)
+				}
+				if bps[1].Score == bps[2].Score {
+					twoBp = append(twoBp, bps[1].ID)
+					twoBp = append(twoBp, bps[2].ID)
+				} else {
+					twoBp = append(twoBp, bps[1].ID)
+					oneBp = append(oneBp, bps[2].ID)
+					}
 		}
-
 		}
-
 			}
+			// fmt.Printf("%+v\n", bps)
+			// bps = bps[:3]
+			// fmt.Println(bps)
+			fmt.Println("3 Bonus Points: ", threeBp)
+			fmt.Println("2 Bonus Points: ", twoBp)
+			fmt.Println("1 Bonus Points: ", oneBp)
 	}
 
 

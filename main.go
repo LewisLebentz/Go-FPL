@@ -432,6 +432,37 @@ type livePlayerData struct {
 	} `json:"elements"`
 }
 
+type bonusPoints []struct {
+	Code                 int       `json:"code"`
+	Event                int       `json:"event"`
+	Finished             bool      `json:"finished"`
+	FinishedProvisional  bool      `json:"finished_provisional"`
+	ID                   int       `json:"id"`
+	KickoffTime          time.Time `json:"kickoff_time"`
+	Minutes              int       `json:"minutes"`
+	ProvisionalStartTime bool      `json:"provisional_start_time"`
+	Started              bool      `json:"started"`
+	TeamA                int       `json:"team_a"`
+	TeamAScore           int       `json:"team_a_score"`
+	TeamH                int       `json:"team_h"`
+	TeamHScore           int       `json:"team_h_score"`
+	Stats                []struct {
+		Identifier string        `json:"identifier"`
+		A          []struct {
+			Value   int `json:"value"`
+			Element int `json:"element"`
+		} `json:"a"`
+		H          []struct {
+			Value   int `json:"value"`
+			Element int `json:"element"`
+		} `json:"h"`
+	} `json:"stats"`
+	TeamHDifficulty int `json:"team_h_difficulty"`
+	TeamADifficulty int `json:"team_a_difficulty"`
+	PulseID         int `json:"pulse_id"`
+}
+
+
 const fplURL string = "https://fantasy.premierleague.com/api/bootstrap-static/"
 
 var fplData fpl
@@ -485,6 +516,7 @@ func main() {
 		i, _ := strconv.Atoi(vars["league"])
 		rows = nil
 		getLeague(i)
+		getBonusPoints()
 		// go func() {
 		// 	getLeague(i)
 		// 	wg.Done()
@@ -498,7 +530,8 @@ func main() {
 		}
 		tmpl.Execute(w, data)
 	})
-	http.ListenAndServeTLS(":443", "localhost.crt", "localhost.key", r)
+	// http.ListenAndServeTLS(":443", "localhost.crt", "localhost.key", r)
+	http.ListenAndServe(":80", r)
 }
 
 func getPicks(id, week int) ([]int, int) {
@@ -670,12 +703,57 @@ func getPlayerName(id int) string {
 	for _, element := range fplData.Elements {
 		if element.ID == id {
 			// fmt.Println(element.ID, element.FirstName, element.SecondName, element.PointsPerGame, element.Team)
-			fullName := element.FirstName + " " + element.SecondName
-			return element.SecondName
+			// fullName := element.FirstName + " " + element.SecondName
+			return element.WebName
 		}
 	}
 	return ("")
 }
+
+func getBonusPoints() {
+	client := &http.Client{}
+
+	apiURL := fmt.Sprintf("https://fantasy.premierleague.com/api/fixtures/?event=%v", currentGw)
+
+	req, err := http.NewRequest("GET", apiURL, nil)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	req.Header.Set("User-Agent", "PostmanRuntime/7.18.0")
+
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	var responseObject bonusPoints
+
+	json.Unmarshal(body, &responseObject)
+
+	// fmt.Println(responseObject[0].Stats[9].A)
+
+	for _, element := range responseObject {
+		for _, match := range element.Stats {
+			if match.Identifier == "bps" {
+				// fmt.Println(match.H[0].Element)
+				h := map[int]int{match.H[0].Element: match.H[0].Value, match.H[1].Element: match.H[1].Value, match.H[2].Element: match.H[2].Value, match.A[0].Element: match.A[0].Value, match.A[1].Element: match.A[1].Value, match.A[2].Element: match.A[2].Value}
+				// a := map[int]int{match.A[0].Element: match.A[0].Value, match.A[1].Element: match.A[1].Value, match.A[2].Element: match.A[2].Value}
+				fmt.Println(h)
+		}
+
+		}
+
+			}
+	}
+
+
 
 func getLiveTotal(id int) int {
 	client := &http.Client{}

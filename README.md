@@ -14,3 +14,4 @@ Real time leaderboard for Fantasy Premier League mini leagues.
 - [ ] Optimise code
 - [ ] Create pipeline
 - [ ] Move structs into another file
+- [ ] Freeze Team Name column to improve mobile experience

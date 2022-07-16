@@ -1015,6 +1015,8 @@ func getNewLeagueEntries(id, offset int) []NewEntries {
 		offset = offset + 1
 		getNewLeagueEntries(id, offset)
 	}
+	fmt.Println("Array and Len:")
 	fmt.Println(newEntries)
+	fmt.Println(len(newEntries))
 	return newEntries
 }

@@ -538,7 +538,7 @@ func main() {
 		i, _ := strconv.Atoi(vars["league"])
 		// rows = nil
 		getBonusPoints()
-		rows := getLeague(i)
+		rows := getLeague(i, 1)
 		newEntries := getNewLeagueEntries(i, 1)
 		// go func() {
 		// 	getLeague(i)
@@ -909,7 +909,7 @@ func getPrevTotal(id, week int) int {
 
 }
 
-func getLeague(id int) []row {
+func getLeague(id, offset int) []row {
 	client := &http.Client{}
 
 	apiURL := fmt.Sprintf("https://fantasy.premierleague.com/api/leagues-classic/%v/standings/", id)
@@ -956,6 +956,17 @@ func getLeague(id int) []row {
 		captain := getCaptain(element.Entry, currentGw)
 		result := row{element.RankSort, element.EntryName, eventTotal, liveTotal, prevTotal, element.LastRank, benchPts, captain}
 		rows = append(rows, result)
+	}
+	if responseObject.Standings.HasNext == true {
+		if offset < 100 {
+			fmt.Println(("RUNNING OFFSET BIT"))
+			offset = offset + 1
+			offsetResult := getLeague(id, offset)
+			fmt.Println("OFFSET RESULT: ", offsetResult)
+
+			rows = append(rows, offsetResult...)
+			fmt.Println("Combined: ", rows)
+		}
 	}
 	// wg.Wait()
 	sort.Slice(rows, func(i, j int) bool {

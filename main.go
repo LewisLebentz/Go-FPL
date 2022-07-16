@@ -485,7 +485,6 @@ type bonusPointsCalc struct {
 const fplURL string = "https://fantasy.premierleague.com/api/bootstrap-static/"
 
 var fplData fpl
-var newEntries []NewEntries
 
 // var rows []row
 
@@ -995,7 +994,7 @@ func getNewLeagueEntries(id, offset int) []NewEntries {
 		log.Fatalln(err)
 	}
 	var responseObject league
-	// var newEntries []NewEntries
+	var newEntries []NewEntries
 
 	json.Unmarshal(body, &responseObject)
 

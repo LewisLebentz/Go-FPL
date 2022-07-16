@@ -974,7 +974,7 @@ func getNewLeagueEntries(id, offset int) []NewEntries {
 	apiURL := fmt.Sprintf("https://fantasy.premierleague.com/api/leagues-classic/%v/standings/", id)
 	if offset > 1 {
 		fmt.Println(("RUNNNG OFFSET API BIT"))
-		apiURL = fmt.Sprintf("https://fantasy.premierleague.com/api/leagues-classic/%v/standings/%v", id, offset)
+		apiURL = fmt.Sprintf("https://fantasy.premierleague.com/api/leagues-classic/%v/standings?page_new_entries=%v", id, offset)
 	}
 
 	req, err := http.NewRequest("GET", apiURL, nil)

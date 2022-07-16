@@ -16,7 +16,7 @@
         <script>
             var input = document.getElementById("leagueID");
             function getInputValue(){
-                var leagueId = "https://fpl.lew.im/league/" + input;
+                var leagueId = "https://fpl.lew.im/league/" + input.value();
                 window.open(leagueId);
             }
             input.addEventListener("keypress", function(event) {

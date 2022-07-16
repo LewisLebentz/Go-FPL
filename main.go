@@ -555,11 +555,10 @@ func main() {
 		tmpl.Execute(w, data)
 	})
 
-	tmplIndex := template.Must(template.ParseFiles("index.html"))
-	r.HandleFunc("/league", func(w http.ResponseWriter, r *http.Request) {
-		tmplIndex.Execute(w, nil)
+	// tmplIndex := template.Must(template.ParseFiles("index.html"))
+	r.HandleFunc("/league/", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "index.html")
 	})
-
 	http.ListenAndServeTLS(":443", "localhost.crt", "localhost.key", r)
 	// http.ListenAndServe(":80", r)
 }

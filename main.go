@@ -1013,13 +1013,15 @@ func getNewLeagueEntries(id, offset int) []NewEntries {
 		newEntries = append(newEntries, result)
 	}
 	if responseObject.NewEntries.HasNext == true {
-		fmt.Println(("RUNNING OFFSET BIT"))
-		offset = offset + 1
-		offsetResult := getNewLeagueEntries(id, offset)
-		fmt.Println("OFFSET RESULT: ", offsetResult)
+		if offset < 10 {
+			fmt.Println(("RUNNING OFFSET BIT"))
+			offset = offset + 1
+			offsetResult := getNewLeagueEntries(id, offset)
+			fmt.Println("OFFSET RESULT: ", offsetResult)
 
-		newEntries = append(newEntries, offsetResult...)
-		fmt.Println("Combined: ", newEntries)
+			newEntries = append(newEntries, offsetResult...)
+			fmt.Println("Combined: ", newEntries)
+		}
 	}
 	fmt.Println("Array and Len:")
 	fmt.Println(newEntries)

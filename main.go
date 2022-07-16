@@ -1013,9 +1013,10 @@ func getNewLeagueEntries(id, offset int) []NewEntries {
 	}
 	if responseObject.NewEntries.HasNext == true {
 		offset = offset + 1
-		getNewLeagueEntries(id, offset)
+		offsetResult := getNewLeagueEntries(id, offset)
+		newEntries = append(newEntries, offsetResult...)
 	}
-	fmt.Println("Array and Len:")
+		fmt.Println("Array and Len:")
 	fmt.Println(newEntries)
 	fmt.Println(len(newEntries))
 	return newEntries

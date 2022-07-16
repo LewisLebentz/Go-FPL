@@ -1013,7 +1013,7 @@ func getNewLeagueEntries(id, offset int) []NewEntries {
 		newEntries = append(newEntries, result)
 	}
 	if responseObject.NewEntries.HasNext == true {
-		if offset < 10 {
+		if offset < 100 {
 			fmt.Println(("RUNNING OFFSET BIT"))
 			offset = offset + 1
 			offsetResult := getNewLeagueEntries(id, offset)

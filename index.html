@@ -14,12 +14,12 @@
         <button type="button" id="getLeagueBtn" onclick="getInputValue();">Get League</button>
         
         <script>
+            var input = document.getElementById("leagueID");
             function getInputValue(){
-                var inputVal = document.getElementById("leagueID").value;
                 var leagueId = "https://fpl.lew.im/league/" + inputVal;
                 window.open(leagueId);
             }
-            inputVal.addEventListener("keypress", function(event) {
+            input.addEventListener("keypress", function(event) {
             if (event.key === "Enter") {
                 event.preventDefault();
                 document.getElementById("getLeagueBtn").click();

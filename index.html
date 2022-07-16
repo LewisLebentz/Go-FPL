@@ -6,70 +6,18 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.3/css/bootstrap.min.css" integrity="sha512-oc9+XSs1H243/FRN9Rw62Fn8EtxjEYWHXRvjS43YtueEewbS6ObfXcJNyohjHqVKFPoXXUxwc+q1K7Dee6vv9g==" crossorigin="anonymous" />
         <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.3/js/bootstrap.min.js" integrity="sha512-8qmis31OQi6hIRgvkht0s6mCOittjMa9GMqtK9hes5iEQBQE/Ca6yGE5FsW36vyipGoWQswBj/QBm2JR086Rkw==" crossorigin="anonymous"></script>
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.18.0/bootstrap-table.min.css" integrity="sha512-9+eWL83icQU9EurxdlXQjhqhQbq/wtbpoQZiWp73jXRHw5cIshFkSw5/d0XOXuQe9AjmWeOQfvdgu/WAA4KDVw==" crossorigin="anonymous" />
         <title>FPL - Live Leaderboard</title>
     </head>
     <body>
-        <h1>{{.PageTitle}}</h1>
-        <table data-toggle="table" data-sort-name="livetotal" data-sort-order="desc" class="table">
-            <thead>
-            <tr>
-                <th>#</th>
-                <th>Team Name</th>
-                <th>GW Total</th>
-                <th data-field="livetotal">Live Total</th>
-                <th>Prev Total</th>
-                <th>Last Rank</th>
-                <th>Bench Pts</th>
-                <th>Captain</th>
-            </tr>
-            </thead>
-            <tbody>
-            {{range .Rows}}
-            <tr>
-            {{if (gt .Rank .LastRank)}}
-                <td class="table-danger">
-            {{else if (lt .Rank .LastRank)}}
-                <td class="table-success"> 
-            {{else}}
-                <td>
-            {{end}}
-                {{.Rank}}</td>
-                <td>{{.TeamName}}</td>
-                <td>{{.GWTotal}}</td>
-                <td>{{.LiveTotal}}</td>
-                <td>{{.PrevTotal}}</td>
-                <td>{{.LastRank}}</td>
-                <td>{{.BenchPts}}</td>
-                <td>{{.Captain}}</td>
-            </tr>
-            {{end}}
-            </tbody>
-        </table>
-        {{if .NewEntries}}
-        <div>
-            <h2>New Entries:</h2>
-            <table data-toggle="table" data-sort-name="newentries" data-sort-order="desc" class="table">
-                <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Team Name</th>
-                    <th>First Name</th>
-                    <th>Last Name</th>
-                </tr>
-                </thead>
-                <tbody>
-                {{range .NewEntries}}
-                <tr>
-                    <td>{{.TeamID}}</td>
-                    <td>{{.TeamName}}</td>
-                    <td>{{.FirstName}}</td>
-                    <td>{{.LastName}}</td>
-                </tr>
-                {{end}}
-                </tbody>
-            </table>      
-        </div>  
-        {{end}}
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.18.0/bootstrap-table.min.js" integrity="sha512-r+k0ZHRS62LiRIFpBwrwQ14MIT9YPusK7AcoeT34gHdzh2p7FBmU43/aE2ZDem9NM7bSIbMMV23u6zYny28oqg==" crossorigin="anonymous"></script>
+        <h1>Enter League:</h1>
+        <input type="text" placeholder="Enter League ID" id="leagueID">
+        <button type="button" onclick="getInputValue();">Get Value</button>
+        
+        <script>
+            function getInputValue(){
+                var inputVal = document.getElementById("leagueID").value;
+                var leagueId = "https://fpl.lew.im/leagues/" + inputVal;
+                window.open(leagueId. _self);
+            }
+        </script>
     </body>

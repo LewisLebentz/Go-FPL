@@ -531,7 +531,7 @@ func main() {
 
 	// var wg sync.WaitGroup
 
-	tmpl := template.Must(template.ParseFiles("index.html"))
+	tmpl := template.Must(template.ParseFiles("leagues.html"))
 	r.HandleFunc("/league/{league}", func(w http.ResponseWriter, r *http.Request) {
 		// wg.Add(1)
 		vars := mux.Vars(r)
@@ -554,6 +554,12 @@ func main() {
 		}
 		tmpl.Execute(w, data)
 	})
+
+	tmplIndex := template.Must(template.ParseFiles("index.html"))
+	r.HandleFunc("/league", func(w http.ResponseWriter, r *http.Request) {
+		tmplIndex.Execute(w, nil)
+	})
+
 	http.ListenAndServeTLS(":443", "localhost.crt", "localhost.key", r)
 	// http.ListenAndServe(":80", r)
 }

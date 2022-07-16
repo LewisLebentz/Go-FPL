@@ -46,6 +46,7 @@
             {{end}}
             </tbody>
         </table>
+        {{if .NewEntries}}
         <table data-toggle="table" data-sort-name="newentries" data-sort-order="desc" class="table">
             <thead>
             <tr>
@@ -66,6 +67,6 @@
             {{end}}
             </tbody>
         </table>        
-
+        {{end}}
         <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.18.0/bootstrap-table.min.js" integrity="sha512-r+k0ZHRS62LiRIFpBwrwQ14MIT9YPusK7AcoeT34gHdzh2p7FBmU43/aE2ZDem9NM7bSIbMMV23u6zYny28oqg==" crossorigin="anonymous"></script>
     </body>

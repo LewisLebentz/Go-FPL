@@ -539,7 +539,7 @@ func main() {
 		// rows = nil
 		getBonusPoints()
 		rows := getLeague(i)
-		newEntries := getNewLeagueEntries(i)
+		newEntries := getNewLeagueEntries(i, 1)
 		// go func() {
 		// 	getLeague(i)
 		// 	wg.Done()
@@ -968,7 +968,7 @@ func getLeague(id int) []row {
 	return rows
 }
 
-func getNewLeagueEntries(id int) []NewEntries {
+func getNewLeagueEntries(id, offset int) []NewEntries {
 	client := &http.Client{}
 
 	apiURL := fmt.Sprintf("https://fantasy.premierleague.com/api/leagues-classic/%v/standings/", id)
@@ -1005,6 +1005,10 @@ func getNewLeagueEntries(id int) []NewEntries {
 		fmt.Println("---------")
 		result := NewEntries{element.Entry, element.EntryName, element.PlayerFirstName, element.PlayerLastName}
 		newEntries = append(newEntries, result)
+	}
+	if responseObject.NewEntries.HasNext {
+		offset = offset + 1
+		getNewLeagueEntries(id, offset)
 	}
 	fmt.Println(newEntries)
 	return newEntries

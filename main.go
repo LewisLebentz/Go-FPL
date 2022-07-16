@@ -7,9 +7,9 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"sort"
 	"strconv"
 	"time"
-	"sort"
 
 	"github.com/gorilla/mux"
 )
@@ -308,9 +308,15 @@ type league struct {
 		Rank        interface{} `json:"rank"`
 	} `json:"league"`
 	NewEntries struct {
-		HasNext bool          `json:"has_next"`
-		Page    int           `json:"page"`
-		Results []interface{} `json:"results"`
+		HasNext bool `json:"has_next"`
+		Page    int  `json:"page"`
+		Results []struct {
+			Entry           int       `json:"entry"`
+			EntryName       string    `json:"entry_name"`
+			JoinedTime      time.Time `json:"joined_time"`
+			PlayerFirstName string    `json:"player_first_name"`
+			PlayerLastName  string    `json:"player_last_name"`
+		} `json:"results"`
 	} `json:"new_entries"`
 	Standings struct {
 		HasNext bool `json:"has_next"`
@@ -330,8 +336,9 @@ type league struct {
 }
 
 type OutputPageData struct {
-	PageTitle string
-	Rows      []row
+	PageTitle  string
+	Rows       []row
+	NewEntries []NewEntries
 }
 
 type entry struct {
@@ -398,6 +405,13 @@ type row struct {
 	Captain   string
 }
 
+type NewEntries struct {
+	TeamID    int
+	TeamName  string
+	FirstName string
+	LastName  string
+}
+
 type livePlayerData struct {
 	Elements []struct {
 		ID    int `json:"id"`
@@ -448,12 +462,12 @@ type bonusPoints []struct {
 	TeamH                int       `json:"team_h"`
 	TeamHScore           int       `json:"team_h_score"`
 	Stats                []struct {
-		Identifier string        `json:"identifier"`
+		Identifier string `json:"identifier"`
 		A          []struct {
 			Value   int `json:"value"`
 			Element int `json:"element"`
 		} `json:"a"`
-		H          []struct {
+		H []struct {
 			Value   int `json:"value"`
 			Element int `json:"element"`
 		} `json:"h"`
@@ -477,6 +491,7 @@ var fplData fpl
 var threeBp []int
 var twoBp []int
 var oneBp []int
+
 // var wg sync.WaitGroup
 
 var currentGw int
@@ -512,7 +527,6 @@ func main() {
 		}
 	}
 
-
 	r := mux.NewRouter()
 
 	// var wg sync.WaitGroup
@@ -525,6 +539,7 @@ func main() {
 		// rows = nil
 		getBonusPoints()
 		rows := getLeague(i)
+		newEntries := getNewLeagueEntries(i)
 		// go func() {
 		// 	getLeague(i)
 		// 	wg.Done()
@@ -533,8 +548,9 @@ func main() {
 		// wg.Wait()
 
 		data := OutputPageData{
-			PageTitle: "FPL",
-			Rows:      rows,
+			PageTitle:  "FPL",
+			Rows:       rows,
+			NewEntries: newEntries,
 		}
 		tmpl.Execute(w, data)
 	})
@@ -579,7 +595,7 @@ func getPicks(id, week int) ([]int, int) {
 				continue
 			}
 			players = append(players, element.Element)
-			}
+		}
 		// fmt.Println(getPlayerName(element.Element))
 		// fmt.Println(element.IsCaptain)
 		// getPlayer(element.Element)
@@ -789,19 +805,17 @@ func getBonusPoints() {
 				} else {
 					twoBp = append(twoBp, bps[1].ID)
 					oneBp = append(oneBp, bps[2].ID)
-					}
-		}
-		}
+				}
 			}
-			// fmt.Printf("%+v\n", bps)
-			// bps = bps[:3]
-			// fmt.Println(bps)
-			fmt.Println("3 Bonus Points: ", threeBp)
-			fmt.Println("2 Bonus Points: ", twoBp)
-			fmt.Println("1 Bonus Points: ", oneBp)
+		}
 	}
-
-
+	// fmt.Printf("%+v\n", bps)
+	// bps = bps[:3]
+	// fmt.Println(bps)
+	fmt.Println("3 Bonus Points: ", threeBp)
+	fmt.Println("2 Bonus Points: ", twoBp)
+	fmt.Println("1 Bonus Points: ", oneBp)
+}
 
 func getLiveTotal(id int) int {
 	client := &http.Client{}
@@ -934,7 +948,7 @@ func getLeague(id int) []row {
 		fmt.Println("---------")
 		fmt.Println("---------")
 		benchPts := getBenchPts(element.Entry, currentGw)
-		prevTotal := getPrevTotal(element.Entry, currentGw - 1)
+		prevTotal := getPrevTotal(element.Entry, currentGw-1)
 		picks, captainPick := getPicks(element.Entry, currentGw)
 		// liveTotal := element.EventTotal + prevTotal
 		eventTotal := getLiveScore(picks, currentGw) + (getLiveScore([]int{captainPick}, currentGw) * 2)
@@ -952,4 +966,46 @@ func getLeague(id int) []row {
 	}
 	fmt.Println(rows)
 	return rows
+}
+
+func getNewLeagueEntries(id int) []NewEntries {
+	client := &http.Client{}
+
+	apiURL := fmt.Sprintf("https://fantasy.premierleague.com/api/leagues-classic/%v/standings/", id)
+
+	req, err := http.NewRequest("GET", apiURL, nil)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	req.Header.Set("User-Agent", "PostmanRuntime/7.18.0")
+
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	var responseObject league
+	var newEntries []NewEntries
+
+	json.Unmarshal(body, &responseObject)
+
+	for _, element := range responseObject.NewEntries.Results {
+		fmt.Println(element.EntryName)
+		fmt.Println("Team ID: ", element.Entry)
+		fmt.Println("Player First Name: ", element.PlayerFirstName)
+		fmt.Println("Player Second Name: ", element.PlayerLastName)
+		fmt.Println("Team Name: ", element.EntryName)
+		fmt.Println("---------")
+		fmt.Println("---------")
+		result := NewEntries{element.Entry, element.EntryName, element.PlayerFirstName, element.PlayerLastName}
+		newEntries = append(newEntries, result)
+	}
+	fmt.Println(newEntries)
+	return newEntries
 }

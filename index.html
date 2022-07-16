@@ -46,5 +46,26 @@
             {{end}}
             </tbody>
         </table>
+        <table data-toggle="table" data-sort-name="newentries" data-sort-order="desc" class="table">
+            <thead>
+            <tr>
+                <th>#</th>
+                <th>Team Name</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+            </tr>
+            </thead>
+            <tbody>
+            {{range .NewEntries}}
+            <tr>
+                <td>{{.TeamID}}</td>
+                <td>{{.TeamName}}</td>
+                <td>{{.FirstName}}</td>
+                <td>{{.LastName}}</td>
+            </tr>
+            {{end}}
+            </tbody>
+        </table>        
+
         <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.18.0/bootstrap-table.min.js" integrity="sha512-r+k0ZHRS62LiRIFpBwrwQ14MIT9YPusK7AcoeT34gHdzh2p7FBmU43/aE2ZDem9NM7bSIbMMV23u6zYny28oqg==" crossorigin="anonymous"></script>
     </body>

@@ -11,7 +11,7 @@
     <body>
         <h1>Enter League:</h1>
         <input type="text" placeholder="Enter League ID" id="leagueID">
-        <button type="button" onclick="getInputValue();">Get Value</button>
+        <button type="button" id="getLeagueBtn" onclick="getInputValue();">Get League</button>
         
         <script>
             function getInputValue(){
@@ -19,5 +19,11 @@
                 var leagueId = "https://fpl.lew.im/league/" + inputVal;
                 window.open(leagueId);
             }
+            input.addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                document.getElementById("getLeagueBtn").click();
+            }
+            });
         </script>
     </body>

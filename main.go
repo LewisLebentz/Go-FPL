@@ -973,6 +973,7 @@ func getNewLeagueEntries(id, offset int) []NewEntries {
 
 	apiURL := fmt.Sprintf("https://fantasy.premierleague.com/api/leagues-classic/%v/standings/", id)
 	if offset > 1 {
+		fmt.Println(("RUNNNG OFFSET API BIT"))
 		apiURL = fmt.Sprintf("https://fantasy.premierleague.com/api/leagues-classic/%v/standings/%v", id, offset)
 	}
 
@@ -1012,11 +1013,15 @@ func getNewLeagueEntries(id, offset int) []NewEntries {
 		newEntries = append(newEntries, result)
 	}
 	if responseObject.NewEntries.HasNext == true {
+		fmt.Println(("RUNNING OFFSET BIT"))
 		offset = offset + 1
 		offsetResult := getNewLeagueEntries(id, offset)
+		fmt.Println("OFFSET RESULT: ", offsetResult)
+
 		newEntries = append(newEntries, offsetResult...)
+		fmt.Println("Combined: ", newEntries)
 	}
-		fmt.Println("Array and Len:")
+	fmt.Println("Array and Len:")
 	fmt.Println(newEntries)
 	fmt.Println(len(newEntries))
 	return newEntries

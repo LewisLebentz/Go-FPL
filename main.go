@@ -485,6 +485,7 @@ type bonusPointsCalc struct {
 const fplURL string = "https://fantasy.premierleague.com/api/bootstrap-static/"
 
 var fplData fpl
+var newEntries []NewEntries
 
 // var rows []row
 
@@ -972,6 +973,9 @@ func getNewLeagueEntries(id, offset int) []NewEntries {
 	client := &http.Client{}
 
 	apiURL := fmt.Sprintf("https://fantasy.premierleague.com/api/leagues-classic/%v/standings/", id)
+	if offset > 1 {
+		apiURL = fmt.Sprintf("https://fantasy.premierleague.com/api/leagues-classic/%v/standings/%v", id, offset)
+	}
 
 	req, err := http.NewRequest("GET", apiURL, nil)
 	if err != nil {
@@ -991,18 +995,20 @@ func getNewLeagueEntries(id, offset int) []NewEntries {
 		log.Fatalln(err)
 	}
 	var responseObject league
-	var newEntries []NewEntries
+	// var newEntries []NewEntries
 
 	json.Unmarshal(body, &responseObject)
 
+	fmt.Println(responseObject.NewEntries.HasNext)
+
 	for _, element := range responseObject.NewEntries.Results {
-		fmt.Println(element.EntryName)
-		fmt.Println("Team ID: ", element.Entry)
-		fmt.Println("Player First Name: ", element.PlayerFirstName)
-		fmt.Println("Player Second Name: ", element.PlayerLastName)
-		fmt.Println("Team Name: ", element.EntryName)
-		fmt.Println("---------")
-		fmt.Println("---------")
+		// fmt.Println(element.EntryName)
+		// fmt.Println("Team ID: ", element.Entry)
+		// fmt.Println("Player First Name: ", element.PlayerFirstName)
+		// fmt.Println("Player Second Name: ", element.PlayerLastName)
+		// fmt.Println("Team Name: ", element.EntryName)
+		// fmt.Println("---------")
+		// fmt.Println("---------")
 		result := NewEntries{element.Entry, element.EntryName, element.PlayerFirstName, element.PlayerLastName}
 		newEntries = append(newEntries, result)
 	}

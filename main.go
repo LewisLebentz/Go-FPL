@@ -556,7 +556,7 @@ func main() {
 	})
 
 	// tmplIndex := template.Must(template.ParseFiles("index.html"))
-	r.HandleFunc("/league/", func(w http.ResponseWriter, r *http.Request) {
+	r.HandleFunc("/league", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "index.html")
 	})
 	http.ListenAndServeTLS(":443", "localhost.crt", "localhost.key", r)

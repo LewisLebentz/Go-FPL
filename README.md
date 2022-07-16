@@ -2,8 +2,8 @@
 Real time leaderboard for Fantasy Premier League mini leagues.
 
 # To Do
-- [*] Create homepage
-- [*] Support displaying more than 50 teams
+- [x] Create homepage
+- [x] Support displaying more than 50 teams
 - [ ] Calculate live subs
 - [ ] Make names clickable
 - [ ] Show number of players that have played

@@ -1006,7 +1006,7 @@ func getNewLeagueEntries(id, offset int) []NewEntries {
 		result := NewEntries{element.Entry, element.EntryName, element.PlayerFirstName, element.PlayerLastName}
 		newEntries = append(newEntries, result)
 	}
-	if responseObject.NewEntries.HasNext {
+	if responseObject.NewEntries.HasNext == true {
 		offset = offset + 1
 		getNewLeagueEntries(id, offset)
 	}

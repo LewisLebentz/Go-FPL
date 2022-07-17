@@ -546,6 +546,10 @@ type managerInfoOutput struct {
 	LeagueName string
 }
 
+type managerOutputPageData struct {
+	Rows []managerInfoOutput
+}
+
 const fplURL string = "https://fantasy.premierleague.com/api/bootstrap-static/"
 
 var fplData fpl
@@ -617,6 +621,20 @@ func main() {
 			NewEntries: newEntries,
 		}
 		tmpl.Execute(w, data)
+	})
+
+	tmplManager := template.Must(template.ParseFiles("manager.html"))
+	r.HandleFunc("/manager/{manager}", func(w http.ResponseWriter, r *http.Request) {
+		// wg.Add(1)
+		vars := mux.Vars(r)
+		i, _ := strconv.Atoi(vars["manager"])
+		// rows = nil
+		rowsManager := getManagerInfo(i)
+
+		data := managerOutputPageData{
+			Rows: rowsManager,
+		}
+		tmplManager.Execute(w, data)
 	})
 
 	r.HandleFunc("/league", func(w http.ResponseWriter, r *http.Request) {
@@ -1112,7 +1130,7 @@ func getNewLeagueEntries(id, offset int) []NewEntries {
 	return newEntries
 }
 
-func getManagerInfo(id string) []managerInfoOutput {
+func getManagerInfo(id int) []managerInfoOutput {
 	client := &http.Client{}
 
 	apiURL := fmt.Sprintf("https://fantasy.premierleague.com/api/entry/%v/", id)

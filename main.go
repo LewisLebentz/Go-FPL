@@ -396,6 +396,7 @@ type entry struct {
 
 type row struct {
 	Rank      int
+	TeamID    int
 	TeamName  string
 	GWTotal   int
 	LiveTotal int
@@ -1054,7 +1055,7 @@ func getLeague(id, offset int) []row {
 		eventTotal := getLiveScore(picks, currentGw) + (getLiveScore([]int{captainPick}, currentGw) * 2)
 		liveTotal := eventTotal + prevTotal
 		captain := getCaptain(element.Entry, currentGw)
-		result := row{element.RankSort, element.EntryName, eventTotal, liveTotal, prevTotal, element.LastRank, benchPts, captain}
+		result := row{element.RankSort, element.ID, element.EntryName, eventTotal, liveTotal, prevTotal, element.LastRank, benchPts, captain}
 		rows = append(rows, result)
 	}
 	if responseObject.Standings.HasNext == true {

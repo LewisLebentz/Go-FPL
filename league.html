@@ -35,7 +35,7 @@
                 <td>
             {{end}}
                 {{.Rank}}</td>
-                <td>{{.TeamName}}</td>
+                <td><a href="https://fpl.lew.im/manager/{{.TeamID}}">{{.TeamName}}</a></td>
                 <td>{{.GWTotal}}</td>
                 <td>{{.LiveTotal}}</td>
                 <td>{{.PrevTotal}}</td>
@@ -53,7 +53,7 @@
                 <thead>
                 <tr>
                     <th>#</th>
-                    <th>Team Name</th>
+                    <td><a href="https://fpl.lew.im/manager/{{.TeamID}}">{{.TeamName}}</a></td>
                     <th>First Name</th>
                     <th>Last Name</th>
                 </tr>

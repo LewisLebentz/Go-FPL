@@ -541,13 +541,15 @@ type managerInfo struct {
 	LastDeadlineTotalTransfers int         `json:"last_deadline_total_transfers"`
 }
 
-type managerInfoOutput struct {
+type managerLeagues struct {
 	LeagueID   int
 	LeagueName string
 }
 
 type managerOutputPageData struct {
-	Rows []managerInfoOutput
+	Leagues          []managerLeagues
+	ManagerFirstName string
+	ManagerLastName  string
 }
 
 const fplURL string = "https://fantasy.premierleague.com/api/bootstrap-static/"
@@ -629,12 +631,8 @@ func main() {
 		vars := mux.Vars(r)
 		i, _ := strconv.Atoi(vars["manager"])
 		// rows = nil
-		rowsManager := getManagerInfo(i)
-
-		data := managerOutputPageData{
-			Rows: rowsManager,
-		}
-		tmplManager.Execute(w, data)
+		managerInfo := getManagerInfo(i)
+		tmplManager.Execute(w, managerInfo)
 	})
 
 	r.HandleFunc("/league", func(w http.ResponseWriter, r *http.Request) {
@@ -1130,7 +1128,7 @@ func getNewLeagueEntries(id, offset int) []NewEntries {
 	return newEntries
 }
 
-func getManagerInfo(id int) []managerInfoOutput {
+func getManagerInfo(id int) managerOutputPageData {
 	client := &http.Client{}
 
 	apiURL := fmt.Sprintf("https://fantasy.premierleague.com/api/entry/%v/", id)
@@ -1153,7 +1151,7 @@ func getManagerInfo(id int) []managerInfoOutput {
 		log.Fatalln(err)
 	}
 	var responseObject managerInfo
-	var managerInfoOutputs []managerInfoOutput
+	var managerLeaguess []managerLeagues
 
 	json.Unmarshal(body, &responseObject)
 
@@ -1162,10 +1160,11 @@ func getManagerInfo(id int) []managerInfoOutput {
 		fmt.Println("League Name: ", element.Name)
 		fmt.Println("---------")
 		fmt.Println("---------")
-		result := managerInfoOutput{element.ID, element.Name}
-		managerInfoOutputs = append(managerInfoOutputs, result)
+		result := managerLeagues{element.ID, element.Name}
+		managerLeaguess = append(managerLeaguess, result)
 	}
 
-	fmt.Println(managerInfoOutputs)
-	return managerInfoOutputs
+	managerOutput := managerOutputPageData{managerLeaguess, responseObject.PlayerFirstName, responseObject.PlayerLastName}
+
+	return managerOutput
 }

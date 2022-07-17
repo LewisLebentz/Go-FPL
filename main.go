@@ -1158,7 +1158,6 @@ func getManagerInfo(id int) []managerInfoOutput {
 	json.Unmarshal(body, &responseObject)
 
 	for _, element := range responseObject.Leagues.Classic {
-		fmt.Println(element.EntryName)
 		fmt.Println("League ID: ", element.ID)
 		fmt.Println("League Name: ", element.Name)
 		fmt.Println("---------")

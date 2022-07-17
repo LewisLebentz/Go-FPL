@@ -30,5 +30,24 @@
             {{end}}
             </tbody>
         </table>
+        <h2>Past Finishes</h2>
+        <table data-toggle="table" data-sort-order="desc" class="table">
+            <thead>
+            <tr>
+                <th>Season Name</th>
+                <th>Rank</th>
+                <th>Points</th>
+            </tr>
+            </thead>
+            <tbody>
+            {{range .PastFinishes.Past}}
+            <tr>
+                <td>{{.SeasonName}}</td>
+                <td>{{.Rank}}</td>
+                <td>{{.TotalPoints}}</td>
+            </tr>
+            {{end}}
+            </tbody>
+        </table>        
         <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.18.0/bootstrap-table.min.js" integrity="sha512-r+k0ZHRS62LiRIFpBwrwQ14MIT9YPusK7AcoeT34gHdzh2p7FBmU43/aE2ZDem9NM7bSIbMMV23u6zYny28oqg==" crossorigin="anonymous"></script>
     </body>

@@ -551,6 +551,17 @@ type managerOutputPageData struct {
 	ManagerFirstName string
 	ManagerLastName  string
 	TeamName         string
+	PastFinishes     managerPastData
+}
+
+type managerPastData struct {
+	Current []interface{} `json:"current"`
+	Past    []struct {
+		SeasonName  string `json:"season_name"`
+		TotalPoints int    `json:"total_points"`
+		Rank        int    `json:"rank"`
+	} `json:"past"`
+	Chips []interface{} `json:"chips"`
 }
 
 const fplURL string = "https://fantasy.premierleague.com/api/bootstrap-static/"
@@ -1165,7 +1176,37 @@ func getManagerInfo(id int) managerOutputPageData {
 		managerLeaguess = append(managerLeaguess, result)
 	}
 
-	managerOutput := managerOutputPageData{managerLeaguess, responseObject.PlayerFirstName, responseObject.PlayerLastName, responseObject.Name}
+	managerPast := getManagerPast(id)
+
+	managerOutput := managerOutputPageData{managerLeaguess, responseObject.PlayerFirstName, responseObject.PlayerLastName, responseObject.Name, managerPast}
 
 	return managerOutput
+}
+
+func getManagerPast(id int) managerPastData {
+	client := &http.Client{}
+
+	apiURL := fmt.Sprintf("https://fantasy.premierleague.com/api/entry/%v/history/", id)
+
+	req, err := http.NewRequest("GET", apiURL, nil)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	req.Header.Set("User-Agent", "PostmanRuntime/7.18.0")
+
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	var responseObject managerPastData
+
+	json.Unmarshal(body, &responseObject)
+	return responseObject
 }

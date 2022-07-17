@@ -550,6 +550,7 @@ type managerOutputPageData struct {
 	Leagues          []managerLeagues
 	ManagerFirstName string
 	ManagerLastName  string
+	TeamName         string
 }
 
 const fplURL string = "https://fantasy.premierleague.com/api/bootstrap-static/"
@@ -1164,7 +1165,7 @@ func getManagerInfo(id int) managerOutputPageData {
 		managerLeaguess = append(managerLeaguess, result)
 	}
 
-	managerOutput := managerOutputPageData{managerLeaguess, responseObject.PlayerFirstName, responseObject.PlayerLastName}
+	managerOutput := managerOutputPageData{managerLeaguess, responseObject.PlayerFirstName, responseObject.PlayerLastName, responseObject.Name}
 
 	return managerOutput
 }

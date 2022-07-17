@@ -482,6 +482,70 @@ type bonusPointsCalc struct {
 	Score int
 }
 
+type managerInfo struct {
+	ID                       int         `json:"id"`
+	JoinedTime               time.Time   `json:"joined_time"`
+	StartedEvent             int         `json:"started_event"`
+	FavouriteTeam            int         `json:"favourite_team"`
+	PlayerFirstName          string      `json:"player_first_name"`
+	PlayerLastName           string      `json:"player_last_name"`
+	PlayerRegionID           int         `json:"player_region_id"`
+	PlayerRegionName         string      `json:"player_region_name"`
+	PlayerRegionIsoCodeShort string      `json:"player_region_iso_code_short"`
+	PlayerRegionIsoCodeLong  string      `json:"player_region_iso_code_long"`
+	SummaryOverallPoints     interface{} `json:"summary_overall_points"`
+	SummaryOverallRank       interface{} `json:"summary_overall_rank"`
+	SummaryEventPoints       interface{} `json:"summary_event_points"`
+	SummaryEventRank         interface{} `json:"summary_event_rank"`
+	CurrentEvent             interface{} `json:"current_event"`
+	Leagues                  struct {
+		Classic []struct {
+			ID             int         `json:"id"`
+			Name           string      `json:"name"`
+			ShortName      string      `json:"short_name"`
+			Created        time.Time   `json:"created"`
+			Closed         bool        `json:"closed"`
+			Rank           interface{} `json:"rank"`
+			MaxEntries     interface{} `json:"max_entries"`
+			LeagueType     string      `json:"league_type"`
+			Scoring        string      `json:"scoring"`
+			AdminEntry     interface{} `json:"admin_entry"`
+			StartEvent     int         `json:"start_event"`
+			EntryCanLeave  bool        `json:"entry_can_leave"`
+			EntryCanAdmin  bool        `json:"entry_can_admin"`
+			EntryCanInvite bool        `json:"entry_can_invite"`
+			HasCup         bool        `json:"has_cup"`
+			CupLeague      interface{} `json:"cup_league"`
+			CupQualified   interface{} `json:"cup_qualified"`
+			EntryRank      int         `json:"entry_rank"`
+			EntryLastRank  int         `json:"entry_last_rank"`
+		} `json:"classic"`
+		H2H []interface{} `json:"h2h"`
+		Cup struct {
+			Matches []interface{} `json:"matches"`
+			Status  struct {
+				QualificationEvent   interface{} `json:"qualification_event"`
+				QualificationNumbers interface{} `json:"qualification_numbers"`
+				QualificationRank    interface{} `json:"qualification_rank"`
+				QualificationState   interface{} `json:"qualification_state"`
+			} `json:"status"`
+			CupLeague interface{} `json:"cup_league"`
+		} `json:"cup"`
+		CupMatches []interface{} `json:"cup_matches"`
+	} `json:"leagues"`
+	Name                       string      `json:"name"`
+	NameChangeBlocked          bool        `json:"name_change_blocked"`
+	Kit                        string      `json:"kit"`
+	LastDeadlineBank           interface{} `json:"last_deadline_bank"`
+	LastDeadlineValue          interface{} `json:"last_deadline_value"`
+	LastDeadlineTotalTransfers int         `json:"last_deadline_total_transfers"`
+}
+
+type managerInfoOutput struct {
+	LeagueID   int
+	LeagueName string
+}
+
 const fplURL string = "https://fantasy.premierleague.com/api/bootstrap-static/"
 
 var fplData fpl
@@ -1046,4 +1110,45 @@ func getNewLeagueEntries(id, offset int) []NewEntries {
 	fmt.Println(newEntries)
 	fmt.Println(len(newEntries))
 	return newEntries
+}
+
+func getManagerInfo(id string) []managerInfoOutput {
+	client := &http.Client{}
+
+	apiURL := fmt.Sprintf("https://fantasy.premierleague.com/api/entry/%v/", id)
+
+	req, err := http.NewRequest("GET", apiURL, nil)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	req.Header.Set("User-Agent", "PostmanRuntime/7.18.0")
+
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	var responseObject managerInfo
+	var managerInfoOutputs []managerInfoOutput
+
+	json.Unmarshal(body, &responseObject)
+
+	for _, element := range responseObject.Leagues.Classic {
+		fmt.Println(element.EntryName)
+		fmt.Println("League ID: ", element.ID)
+		fmt.Println("League Name: ", element.Name)
+		fmt.Println("---------")
+		fmt.Println("---------")
+		result := managerInfoOutput{element.ID, element.Name}
+		managerInfoOutputs = append(managerInfoOutputs, result)
+	}
+
+	fmt.Println(managerInfoOutputs)
+	return managerInfoOutputs
 }

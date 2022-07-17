@@ -10,66 +10,22 @@
         <title>FPL - Live Leaderboard</title>
     </head>
     <body>
-        <h1>{{.PageTitle}}</h1>
-        <table data-toggle="table" data-sort-name="livetotal" data-sort-order="desc" class="table">
+        <h1>Manager Info</h1>
+        <table data-toggle="table" data-sort-order="desc" class="table">
             <thead>
             <tr>
                 <th>#</th>
-                <th>Team Name</th>
-                <th>GW Total</th>
-                <th data-field="livetotal">Live Total</th>
-                <th>Prev Total</th>
-                <th>Last Rank</th>
-                <th>Bench Pts</th>
-                <th>Captain</th>
+                <th>League Name</th>
             </tr>
             </thead>
             <tbody>
-            {{range .Rows}}
+            {{range .managerInfoOutputs}}
             <tr>
-            {{if (gt .Rank .LastRank)}}
-                <td class="table-danger">
-            {{else if (lt .Rank .LastRank)}}
-                <td class="table-success"> 
-            {{else}}
-                <td>
-            {{end}}
-                {{.Rank}}</td>
-                <td>{{.TeamName}}</td>
-                <td>{{.GWTotal}}</td>
-                <td>{{.LiveTotal}}</td>
-                <td>{{.PrevTotal}}</td>
-                <td>{{.LastRank}}</td>
-                <td>{{.BenchPts}}</td>
-                <td>{{.Captain}}</td>
+                <td>{{.LeagueID}}</td>
+                <td>{{.LeagueName}}</td>
             </tr>
             {{end}}
             </tbody>
         </table>
-        {{if .NewEntries}}
-        <div>
-            <h2>New Entries:</h2>
-            <table data-toggle="table" data-sort-name="newentries" data-sort-order="desc" class="table">
-                <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Team Name</th>
-                    <th>First Name</th>
-                    <th>Last Name</th>
-                </tr>
-                </thead>
-                <tbody>
-                {{range .NewEntries}}
-                <tr>
-                    <td>{{.TeamID}}</td>
-                    <td>{{.TeamName}}</td>
-                    <td>{{.FirstName}}</td>
-                    <td>{{.LastName}}</td>
-                </tr>
-                {{end}}
-                </tbody>
-            </table>      
-        </div>  
-        {{end}}
         <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.18.0/bootstrap-table.min.js" integrity="sha512-r+k0ZHRS62LiRIFpBwrwQ14MIT9YPusK7AcoeT34gHdzh2p7FBmU43/aE2ZDem9NM7bSIbMMV23u6zYny28oqg==" crossorigin="anonymous"></script>
     </body>

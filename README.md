@@ -5,7 +5,7 @@ Real time leaderboard for Fantasy Premier League mini leagues.
 - [x] Create homepage
 - [x] Support displaying more than 50 teams
 - [ ] Calculate live subs
-- [ ] Make names clickable
+- [x] Make names clickable
 - [ ] Show number of players that have played
 - [ ] Show number of players playing
 - [ ] Show number of players left to play
@@ -16,5 +16,5 @@ Real time leaderboard for Fantasy Premier League mini leagues.
 - [ ] Move structs into another file
 - [ ] Freeze Team Name column to improve mobile experience
 - [ ] Add player stats overview, showing xG
-- [ ] Create manager homepage
+- [x] Create manager homepage
 - [ ] Create manager overview, rank, players, history etc.

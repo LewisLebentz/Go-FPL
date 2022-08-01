@@ -10,6 +10,8 @@ import (
 	"sort"
 	"strconv"
 	"time"
+	"embed"
+	"os"
 
 	"github.com/gorilla/mux"
 )
@@ -579,6 +581,17 @@ var oneBp []int
 
 var currentGw int
 
+const (
+	templatesDir = "templates/"
+	extension    = "/*.html"
+)
+
+var (
+	//go:embed templates/*
+	files     embed.FS
+	templates map[string]*template.Template
+)
+
 func main() {
 	client := &http.Client{}
 
@@ -614,7 +627,9 @@ func main() {
 
 	// var wg sync.WaitGroup
 
-	tmpl := template.Must(template.ParseFiles("league.html"))
+	r.HandleFunc("/", handler)
+
+	tmpl := template.Must(template.ParseFS(files,templatesDir+"league.html"))
 	r.HandleFunc("/league/{league}", func(w http.ResponseWriter, r *http.Request) {
 		// wg.Add(1)
 		vars := mux.Vars(r)
@@ -638,7 +653,7 @@ func main() {
 		tmpl.Execute(w, data)
 	})
 
-	tmplManager := template.Must(template.ParseFiles("manager.html"))
+	tmplManager := template.Must(template.ParseFS(files, templatesDir+"manager.html"))
 	r.HandleFunc("/manager/{manager}", func(w http.ResponseWriter, r *http.Request) {
 		// wg.Add(1)
 		vars := mux.Vars(r)
@@ -649,13 +664,28 @@ func main() {
 	})
 
 	r.HandleFunc("/league", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "league_index.html")
+		// http.ServeFile(w, r, "league_index.html")
+		p, _ := ioutil.ReadFile(templatesDir+"league_index.html")
+		w.Write(p)
 	})
 
 	r.HandleFunc("/manager", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "manager_index.html")
+		// http.ServeFile(w, r, "manager_index.html")
+		p, _ := ioutil.ReadFile(templatesDir+"league_index.html")
+		w.Write(p)
 	})
-	http.ListenAndServeTLS(":443", "localhost.crt", "localhost.key", r)
+	// Determine port for HTTP service.
+	port := os.Getenv("PORT")
+	if port == "" {
+					port = "8080"
+					log.Printf("defaulting to port %s", port)
+	}
+	// Start HTTP server.
+	log.Printf("listening on port %s", port)
+	if err := http.ListenAndServe(":"+port, r); err != nil {
+					log.Fatal(err)
+	}
+	// http.ListenAndServeTLS(":443", "localhost.crt", "localhost.key", r)
 	// http.ListenAndServe(":80", r)
 }
 
@@ -1210,4 +1240,12 @@ func getManagerPast(id int) managerPastData {
 
 	json.Unmarshal(body, &responseObject)
 	return responseObject
+}
+
+func handler(w http.ResponseWriter, r *http.Request) {
+        name := os.Getenv("NAME")
+        if name == "" {
+                name = "World"
+        }
+        fmt.Fprintf(w, "Hello %s!\n", name)
 }

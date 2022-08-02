@@ -6,9 +6,9 @@ on:
       - "master"
 
 env:
-  PROJECT_ID: '${{ secrets.PROJECT_ID }}'
-  SERVICE: '${{ secrets.SERVICE }}'
-  REGION: '${{ secrets.REGION }}'
+  PROJECT_ID: 'lew-algo'
+  SERVICE: 'go-fpl'
+  REGION: 'us-east1'
 
 jobs:
   deploy:

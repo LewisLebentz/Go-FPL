@@ -19,4 +19,4 @@ Real time leaderboard for Fantasy Premier League mini leagues.
 - [x] Create manager homepage
 - [ ] Create manager overview, rank, players, history etc.
 - [x] Try Google Cloud Run
-- [ ] Try GitHub Actions
+- [x] Try GitHub Actions

@@ -907,6 +907,9 @@ func getBonusPoints() {
 
 	// fmt.Println(responseObject[0].Stats[9].A)
 
+	threeBp = nil
+	twoBp = nil
+	oneBp = nil
 	for _, element := range responseObject {
 		for _, match := range element.Stats {
 			if match.Identifier == "bps" {
@@ -936,7 +939,6 @@ func getBonusPoints() {
 					twoBp = append(twoBp, bps[1].ID)
 					twoBp = append(twoBp, bps[2].ID)
 				} else {
-					twoBp = append(twoBp, bps[1].ID)
 					oneBp = append(oneBp, bps[2].ID)
 				}
 			}

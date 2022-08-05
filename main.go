@@ -619,7 +619,8 @@ func main() {
 
 	for _, element := range fplData.Events {
 		if element.IsCurrent == true {
-			currentGw = element.ID + 1
+			currentGw = element.ID
+			fmt.Println("Current GW: ", currentGw)
 		}
 	}
 
@@ -763,6 +764,7 @@ func getCaptain(id, week int) string {
 
 	for _, element := range responseObject.Picks {
 		if element.IsCaptain {
+			fmt.Println(element.Element)
 			return getPlayerName(element.Element)
 		}
 	}
@@ -1044,6 +1046,11 @@ func getLeague(id, offset int) []row {
 	client := &http.Client{}
 
 	apiURL := fmt.Sprintf("https://fantasy.premierleague.com/api/leagues-classic/%v/standings/", id)
+
+	if offset > 1 {
+		fmt.Println(("RUNNNG OFFSET API BIT"))
+		apiURL = fmt.Sprintf("https://fantasy.premierleague.com/api/leagues-classic/%v/standings?page=%v", id, offset)
+	}
 
 	req, err := http.NewRequest("GET", apiURL, nil)
 	if err != nil {

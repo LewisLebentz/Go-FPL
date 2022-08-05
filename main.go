@@ -1098,7 +1098,7 @@ func getLeague(id, offset int) []row {
 		rows = append(rows, result)
 	}
 	if responseObject.Standings.HasNext == true {
-		if offset < 50 {
+		if offset < 5 {
 			fmt.Println(("RUNNING OFFSET BIT"))
 			offset = offset + 1
 			offsetResult := getLeague(id, offset)
@@ -1164,7 +1164,7 @@ func getNewLeagueEntries(id, offset int) []NewEntries {
 		newEntries = append(newEntries, result)
 	}
 	if responseObject.NewEntries.HasNext == true {
-		if offset < 50 {
+		if offset < 5 {
 			fmt.Println(("RUNNING OFFSET BIT"))
 			offset = offset + 1
 			offsetResult := getNewLeagueEntries(id, offset)

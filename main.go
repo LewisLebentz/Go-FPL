@@ -619,7 +619,7 @@ func main() {
 
 	for _, element := range fplData.Events {
 		if element.IsCurrent == true {
-			currentGw = element.ID
+			currentGw = element.ID + 1
 		}
 	}
 

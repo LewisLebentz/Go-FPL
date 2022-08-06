@@ -1051,7 +1051,7 @@ func getLeague(id, offset int) []row {
 
 	if offset > 1 {
 		fmt.Println(("RUNNNG OFFSET API BIT"))
-		apiURL = fmt.Sprintf("https://fantasy.premierleague.com/api/leagues-classic/%v/standings?page=%v", id, offset)
+		apiURL = fmt.Sprintf("https://fantasy.premierleague.com/api/leagues-classic/%v/standings?page_standings=%v", id, offset)
 	}
 
 	req, err := http.NewRequest("GET", apiURL, nil)
@@ -1104,7 +1104,7 @@ func getLeague(id, offset int) []row {
 			offsetResult := getLeague(id, offset)
 			fmt.Println("OFFSET RESULT: ", offsetResult)
 
-			rows = append(rows, offsetResult...)
+			// rows = append(rows, offsetResult...)
 			fmt.Println("Combined: ", rows)
 		}
 	}

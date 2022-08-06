@@ -556,7 +556,7 @@ type managerOutputPageData struct {
 	ManagerLastName  string
 	TeamName         string
 	PastFinishes     managerPastData
-	currentGw				 int
+	CurrentGw				 int
 }
 
 type managerPastData struct {

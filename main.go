@@ -1104,7 +1104,7 @@ func getLeague(id, offset int) []row {
 			offsetResult := getLeague(id, offset)
 			fmt.Println("OFFSET RESULT: ", offsetResult)
 
-			// rows = append(rows, offsetResult...)
+			rows = append(rows, offsetResult...)
 			fmt.Println("Combined: ", rows)
 		}
 	}

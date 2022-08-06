@@ -12,7 +12,7 @@
     <body>
         <h1>Manager Info</h1>
         <h3>{{.ManagerFirstName}} {{.ManagerLastName}}</h3>
-        <h3>{{.TeamName}}</h3>
+        <h3><a href="https://fantasy.premierleague.com/entry/{{.ManagerID}}/event/{{.CurrentGw}}">{{.TeamName}}</a></h3>
         <h2>Leagues</h2>
         <table data-toggle="table" data-sort-order="desc" class="table">
             <thead>
@@ -48,6 +48,6 @@
             </tr>
             {{end}}
             </tbody>
-        </table>        
+        </table>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.18.0/bootstrap-table.min.js" integrity="sha512-r+k0ZHRS62LiRIFpBwrwQ14MIT9YPusK7AcoeT34gHdzh2p7FBmU43/aE2ZDem9NM7bSIbMMV23u6zYny28oqg==" crossorigin="anonymous"></script>
     </body>

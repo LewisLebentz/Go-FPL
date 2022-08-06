@@ -550,11 +550,13 @@ type managerLeagues struct {
 }
 
 type managerOutputPageData struct {
+	ManagerID				 int
 	Leagues          []managerLeagues
 	ManagerFirstName string
 	ManagerLastName  string
 	TeamName         string
 	PastFinishes     managerPastData
+	currentGw				 int
 }
 
 type managerPastData struct {
@@ -1218,7 +1220,7 @@ func getManagerInfo(id int) managerOutputPageData {
 
 	managerPast := getManagerPast(id)
 
-	managerOutput := managerOutputPageData{managerLeaguess, responseObject.PlayerFirstName, responseObject.PlayerLastName, responseObject.Name, managerPast}
+	managerOutput := managerOutputPageData{id, managerLeaguess, responseObject.PlayerFirstName, responseObject.PlayerLastName, responseObject.Name, managerPast, currentGw}
 
 	return managerOutput
 }

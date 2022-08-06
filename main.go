@@ -406,6 +406,7 @@ type row struct {
 	LastRank  int
 	BenchPts  int
 	Captain   string
+	TotalPlayed	int
 }
 
 type NewEntries struct {
@@ -1092,11 +1093,12 @@ func getLeague(id, offset int) []row {
 		benchPts := getBenchPts(element.Entry, currentGw)
 		prevTotal := getPrevTotal(element.Entry, currentGw-1)
 		picks, captainPick := getPicks(element.Entry, currentGw)
-		// liveTotal := element.EventTotal + prevTotal
 		eventTotal := getLiveScore(picks, currentGw) + (getLiveScore([]int{captainPick}, currentGw) * 2)
 		liveTotal := eventTotal + prevTotal
 		captain := getCaptain(element.Entry, currentGw)
-		result := row{element.RankSort, element.Entry, element.EntryName, eventTotal, liveTotal, prevTotal, element.LastRank, benchPts, captain}
+		picks = append(picks, captainPick)
+		totalPlayed := hasPlayed(picks)
+		result := row{element.RankSort, element.Entry, element.EntryName, eventTotal, liveTotal, prevTotal, element.LastRank, benchPts, captain, totalPlayed}
 		rows = append(rows, result)
 	}
 	if responseObject.Standings.HasNext == true {
@@ -1251,6 +1253,47 @@ func getManagerPast(id int) managerPastData {
 
 	json.Unmarshal(body, &responseObject)
 	return responseObject
+}
+
+func hasPlayed(ids []int) int {
+	client := &http.Client{}
+	var playersPlayed int
+	for _, id := range ids {
+		apiURL := fmt.Sprintf("https://fantasy.premierleague.com/api/element-summary/%v/", id)
+
+		req, err := http.NewRequest("GET", apiURL, nil)
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		req.Header.Set("User-Agent", "PostmanRuntime/7.18.0")
+
+		resp, err := client.Do(req)
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		defer resp.Body.Close()
+		body, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		var responseObject player
+
+		json.Unmarshal(body, &responseObject)
+
+		for _, id := range responseObject.History {
+			// if time.Parse(time.RFC3339Nano, id.KickoffTime).Before(time.Now()) {
+			if id.KickoffTime.Before(time.Now()) {
+
+				// if id.Minutes > 0 {
+					playersPlayed++
+				}
+			// }
+		}
+	}
+	return playersPlayed
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {

@@ -22,6 +22,7 @@
                 <th>Last Rank</th>
                 <th>Bench Pts</th>
                 <th>Captain</th>
+                <th>Players Played</th>
             </tr>
             </thead>
             <tbody>
@@ -30,7 +31,7 @@
             {{if (gt .Rank .LastRank)}}
                 <td class="table-danger">
             {{else if (lt .Rank .LastRank)}}
-                <td class="table-success"> 
+                <td class="table-success">
             {{else}}
                 <td>
             {{end}}
@@ -42,6 +43,7 @@
                 <td>{{.LastRank}}</td>
                 <td>{{.BenchPts}}</td>
                 <td>{{.Captain}}</td>
+                <td>{{.TotalPlayed}}
             </tr>
             {{end}}
             </tbody>
@@ -68,8 +70,8 @@
                 </tr>
                 {{end}}
                 </tbody>
-            </table>      
-        </div>  
+            </table>
+        </div>
         {{end}}
         <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.18.0/bootstrap-table.min.js" integrity="sha512-r+k0ZHRS62LiRIFpBwrwQ14MIT9YPusK7AcoeT34gHdzh2p7FBmU43/aE2ZDem9NM7bSIbMMV23u6zYny28oqg==" crossorigin="anonymous"></script>
     </body>
